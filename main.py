@@ -7,84 +7,54 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.error import Forbidden
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
+
 # =========================
-# МЕГА ТЕМЫ + СЛОВА
+# ТЕМЫ + СЛОВА (можешь расширять)
 # =========================
 THEMES: Dict[str, List[str]] = {
     "Кафе": [
         "Кофе", "Чай", "Капучино", "Латте", "Американо", "Эспрессо", "Раф", "Мокка",
-        "Какао", "Горячий шоколад", "Матча", "Лимонад", "Смузи", "Милкшейк",
+        "Какао", "Лимонад", "Смузи", "Милкшейк",
         "Круассан", "Маффин", "Чизкейк", "Тирамису", "Эклер", "Пончик", "Пирожное",
-        "Торт", "Печенье", "Вафли", "Блины", "Сэндвич", "Пицца", "Салат",
         "Меню", "Счёт", "Чаевые", "Заказ", "Доставка", "Самовывоз",
-        "Официант", "Бариста", "Повар", "Кассир", "Гость", "Очередь",
+        "Официант", "Бариста", "Повар", "Кассир",
         "Чашка", "Блюдце", "Ложка", "Вилка", "Нож", "Салфетка", "Поднос",
-        "Столик", "Стул", "Диванчик", "Витрина", "Терраса", "Музыка", "Wi-Fi"
+        "Столик", "Стул", "Терраса", "Витрина", "Wi-Fi"
     ],
     "Школа": [
-        "Доска", "Мел", "Маркер", "Губка", "Учебник", "Тетрадь", "Дневник",
-        "Рюкзак", "Пенал", "Ручка", "Карандаш", "Ластик", "Линейка", "Циркуль",
-        "Урок", "Перемена", "Звонок", "Домашка", "Контрольная", "Экзамен", "Тест",
-        "Учитель", "Директор", "Завуч", "Одноклассник", "Класс", "Парта", "Стул",
-        "Коридор", "Кабинет", "Спортзал", "Раздевалка", "Столовая", "Библиотека",
-        "Математика", "Русский язык", "История", "Биология", "Химия", "Физика",
-        "География", "Информатика", "Литература", "Музыка", "ИЗО", "Физкультура"
+        "Доска", "Мел", "Маркер", "Учебник", "Тетрадь", "Дневник",
+        "Рюкзак", "Пенал", "Ручка", "Карандаш", "Ластик", "Линейка",
+        "Урок", "Перемена", "Звонок", "Домашка", "Контрольная", "Экзамен",
+        "Учитель", "Директор", "Одноклассник", "Класс", "Парта",
+        "Коридор", "Кабинет", "Спортзал", "Столовая", "Библиотека"
     ],
     "Дом": [
-        "Диван", "Кресло", "Стул", "Стол", "Шкаф", "Комод", "Полка",
-        "Кровать", "Подушка", "Одеяло", "Простыня", "Плед", "Матрас",
-        "Телевизор", "Пульт", "Колонка", "Лампа", "Люстра", "Розетка",
-        "Ковёр", "Зеркало", "Окно", "Шторы", "Дверь", "Ключ", "Замок",
-        "Холодильник", "Микроволновка", "Плита", "Духовка", "Чайник",
-        "Сковородка", "Кастрюля", "Тарелка", "Чашка", "Ложка", "Вилка", "Нож",
-        "Ванная", "Душ", "Ванна", "Полотенце", "Мыло", "Шампунь", "Фен",
-        "Зубная щётка", "Порошок", "Пылесос", "Швабра", "Ведро"
+        "Диван", "Кресло", "Стул", "Стол", "Шкаф", "Комод",
+        "Кровать", "Подушка", "Одеяло", "Плед", "Матрас",
+        "Телевизор", "Пульт", "Лампа", "Люстра", "Розетка",
+        "Ковёр", "Зеркало", "Окно", "Шторы", "Дверь",
+        "Холодильник", "Микроволновка", "Плита", "Чайник",
+        "Сковородка", "Кастрюля",
+        "Ванная", "Душ", "Полотенце", "Мыло", "Шампунь", "Фен"
     ],
     "Улица": [
-        "Дорога", "Тротуар", "Асфальт", "Яма", "Лужа", "Пешеход",
+        "Дорога", "Тротуар", "Асфальт", "Лужа", "Пешеход",
         "Машина", "Автобус", "Трамвай", "Метро", "Такси", "Велосипед", "Самокат",
-        "Светофор", "Пешеходный переход", "Знак", "Перекрёсток", "Поворот",
-        "Фонарь", "Лавочка", "Урна", "Остановка", "Киоск", "Витрина",
-        "Двор", "Подъезд", "Лифт", "Лестница", "Парк", "Аллея", "Дерево",
-        "Детская площадка", "Качели", "Горка", "Песочница", "Собака", "Кошка"
+        "Светофор", "Переход", "Знак", "Перекрёсток",
+        "Фонарь", "Лавочка", "Урна", "Остановка",
+        "Двор", "Подъезд", "Лестница", "Парк", "Аллея",
+        "Площадка", "Качели", "Горка"
     ],
     "Путешествия": [
         "Самолёт", "Аэропорт", "Посадка", "Регистрация", "Багаж", "Ручная кладь",
-        "Билет", "Паспорт", "Виза", "Контроль", "Таможня", "Очередь",
-        "Чемодан", "Рюкзак", "Сумка", "Навигатор", "Карта", "Гид",
-        "Поезд", "Вагон", "Купе", "Плацкарт", "Проводник", "Перрон",
-        "Отель", "Ресепшен", "Номер", "Ключ-карта", "Завтрак", "Бронь",
-        "Экскурсия", "Музей", "Памятник", "Сувенир", "Фото", "Пляж", "Море",
-        "Шезлонг", "Солнцезащитный крем", "Очки"
-    ],
-    "Спорт": [
-        "Мяч", "Стадион", "Поле", "Трибуны", "Команда", "Игрок", "Тренер",
-        "Судья", "Свисток", "Матч", "Гол", "Очко", "Турнир", "Кубок",
-        "Форма", "Кроссовки", "Разминка", "Тренировка", "Растяжка",
-        "Фитнес", "Зал", "Гантели", "Штанга", "Тренажёр", "Коврик",
-        "Бассейн", "Плавание", "Дорожка", "Старт", "Финиш",
-        "Бег", "Марафон", "Йога", "Пилатес", "Скакалка"
-    ],
-    "Работа": [
-        "Офис", "Кабинет", "Рабочий стол", "Компьютер", "Монитор",
-        "Клавиатура", "Мышка", "Принтер", "Сканер", "Папка", "Документ",
-        "Письмо", "Почта", "Звонок", "Встреча", "Совещание",
-        "Проект", "Задача", "Дедлайн", "Отчёт", "Презентация",
-        "Клиент", "Договор", "Подпись", "Печать", "Счёт",
-        "Перерыв", "Кофе-брейк", "Кухня", "Коллега", "Начальник"
-    ],
-    "Природа": [
-        "Лес", "Поляна", "Дерево", "Куст", "Трава", "Цветок",
-        "Река", "Озеро", "Море", "Водопад", "Пляж", "Песок",
-        "Гора", "Холм", "Пещера", "Туман", "Роса", "Снег",
-        "Дождь", "Гроза", "Ветер", "Солнце", "Облако", "Радуга",
-        "Птица", "Рыба", "Лиса", "Волк", "Медведь", "Заяц", "Белка"
+        "Билет", "Паспорт", "Виза", "Контроль", "Таможня",
+        "Чемодан", "Рюкзак", "Карта", "Навигатор", "Гид",
+        "Поезд", "Вагон", "Купе", "Плацкарт", "Перрон",
+        "Отель", "Ресепшен", "Номер", "Ключ-карта", "Бронь",
+        "Экскурсия", "Сувенир", "Пляж", "Море", "Песок"
     ],
 }
 
-# =========================
-# BRAWL STARS (как ты попросил)
-# =========================
 BRAWL = [
     "Шелли", "Кольт", "Спайк", "Ворон", "Леон", "Джесси", "Нита", "Бо", "Поко",
     "Эль примо", "Френк", "8-Бит", "Брок", "Эдгар", "Пайпер", "Мортис",
@@ -93,30 +63,40 @@ BRAWL = [
     "Кит", "Спраут", "Макс", "Фенг",
 ]
 
+
 # =========================
-# СТЕЙТЫ
+# СОСТОЯНИЯ
 # =========================
 @dataclass
 class LocalGame:
     theme: str = ""
     players: int = 0
-    spy_index: int = 0  # 1..players
+    spy_index: int = 0
     word: str = ""
     current_player: int = 1
+
 
 @dataclass
 class OnlineLobby:
     owner_id: int
     theme: Optional[str] = None
     players_target: int = 4
-    players: List[int] = field(default_factory=list)  # user_id list
+    players: List[int] = field(default_factory=list)         # user_id
+    names: Dict[int, str] = field(default_factory=dict)       # user_id -> display name
+
     started: bool = False
     spy_id: Optional[int] = None
     word: Optional[str] = None
-    not_ready: Set[int] = field(default_factory=set)  # users бот не смог написать в личку
 
-LOCAL_GAMES: Dict[int, LocalGame] = {}         # chat_id -> LocalGame
-ONLINE_LOBBY: Dict[int, OnlineLobby] = {}      # group_chat_id -> OnlineLobby
+    timer_job_name: Optional[str] = None                      # имя job в job_queue
+    voting_active: bool = False
+    votes: Dict[int, int] = field(default_factory=dict)       # voter_id -> target_id
+
+    not_ready: Set[int] = field(default_factory=set)          # кому бот не смог написать
+
+
+LOCAL_GAMES: Dict[int, LocalGame] = {}      # chat_id -> LocalGame
+ONLINE_LOBBY: Dict[int, OnlineLobby] = {}   # group_chat_id -> OnlineLobby
 
 
 # =========================
@@ -129,7 +109,6 @@ def kb_mode():
     ])
 
 def kb_themes(prefix: str):
-    # prefix: local_theme / online_theme
     rows = []
     for t in THEMES.keys():
         rows.append([InlineKeyboardButton(t, callback_data=f"{prefix}:{t}")])
@@ -137,7 +116,6 @@ def kb_themes(prefix: str):
     return InlineKeyboardMarkup(rows)
 
 def kb_players(prefix: str, min_n: int, max_n: int):
-    # одна строка кнопок (можно расширить на 2 строки при желании)
     row = [InlineKeyboardButton(str(i), callback_data=f"{prefix}:{i}") for i in range(min_n, max_n + 1)]
     return InlineKeyboardMarkup([row])
 
@@ -155,8 +133,63 @@ def kb_lobby():
         [InlineKeyboardButton("🛑 Закрыть лобби", callback_data="online_close")],
     ])
 
-def mention_user_id(user_id: int) -> str:
-    return f"<a href='tg://user?id={user_id}'>игрок</a>"
+def kb_timer_controls():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🗳 Начать голосование", callback_data="online_vote_start")],
+    ])
+
+def display_name(u) -> str:
+    # красивое имя для списка игроков
+    if u.username:
+        return f"@{u.username}"
+    return u.first_name or "Игрок"
+
+def format_players(lobby: OnlineLobby) -> str:
+    if not lobby.players:
+        return "—"
+    return ", ".join(lobby.names.get(uid, f"id:{uid}") for uid in lobby.players)
+
+
+# =========================
+# УТИЛИТЫ: таймер и завершение
+# =========================
+DISCUSSION_SECONDS = 5 * 60
+
+async def timer_expired(context: ContextTypes.DEFAULT_TYPE):
+    data = context.job.data or {}
+    chat_id = data.get("chat_id")
+    if not chat_id:
+        return
+
+    lobby = ONLINE_LOBBY.get(chat_id)
+    if not lobby:
+        return
+
+    # если голосование уже началось — не надо “шпион выигрывает”
+    if lobby.voting_active:
+        return
+
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text="⏱ Время вышло (5 минут). Шпион выигрывает! 🕵️🎉"
+    )
+    ONLINE_LOBBY.pop(chat_id, None)
+
+def cancel_timer(context: ContextTypes.DEFAULT_TYPE, lobby: OnlineLobby):
+    if lobby.timer_job_name:
+        for job in context.job_queue.get_jobs_by_name(lobby.timer_job_name):
+            job.schedule_removal()
+        lobby.timer_job_name = None
+
+def start_timer(context: ContextTypes.DEFAULT_TYPE, chat_id: int, lobby: OnlineLobby):
+    cancel_timer(context, lobby)
+    lobby.timer_job_name = f"timer:{chat_id}"
+    context.job_queue.run_once(
+        timer_expired,
+        when=DISCUSSION_SECONDS,
+        name=lobby.timer_job_name,
+        data={"chat_id": chat_id}
+    )
 
 
 # =========================
@@ -168,7 +201,8 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Команды:\n"
         "/game — начать (выбор режима)\n"
         "/stop — остановить\n\n"
-        "Для онлайн-режима: каждый игрок должен открыть меня в личке и нажать /start один раз."
+        "Для онлайн-режима: каждый игрок должен открыть меня в личке и нажать /start (один раз), "
+        "иначе роль не придёт."
     )
 
 async def cmd_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -177,7 +211,9 @@ async def cmd_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     LOCAL_GAMES.pop(chat_id, None)
-    ONLINE_LOBBY.pop(chat_id, None)
+    lobby = ONLINE_LOBBY.pop(chat_id, None)
+    if lobby:
+        cancel_timer(context, lobby)
     await update.message.reply_text("Остановлено. Чтобы начать заново: /game")
 
 
@@ -280,16 +316,16 @@ async def on_local_ok(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # =========================
-# ОНЛАЙН РЕЖИМ (ГРУППА + ЛИЧКА)
+# ОНЛАЙН РЕЖИМ: лобби
 # =========================
 def lobby_text(chat_id: int) -> str:
     lobby = ONLINE_LOBBY[chat_id]
     theme_name = "Brawl Stars ⭐" if lobby.theme == "BRAWL" else (lobby.theme or "—")
-    players_count = len(lobby.players)
     return (
         f"🌐 Онлайн-лобби\n"
         f"Тема: {theme_name}\n"
-        f"Игроки: {players_count}/{lobby.players_target}\n\n"
+        f"Игроки: {len(lobby.players)}/{lobby.players_target}\n"
+        f"{format_players(lobby)}\n\n"
         f"Нажмите «Присоединиться». Когда все собрались — «Начать».\n"
         f"Важно: каждый игрок должен открыть бота в личке и нажать /start (один раз), иначе роль не придёт."
     )
@@ -319,9 +355,10 @@ async def on_online_players(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     lobby.players_target = int(q.data.split(":", 1)[1])
 
-    # владелец автоматически добавляется
+    # создатель автоматически в лобби
     if lobby.owner_id not in lobby.players:
         lobby.players.append(lobby.owner_id)
+    lobby.names[lobby.owner_id] = display_name(q.from_user)
 
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
@@ -336,6 +373,7 @@ async def on_online_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = q.from_user.id
     if uid not in lobby.players:
         lobby.players.append(uid)
+    lobby.names[uid] = display_name(q.from_user)
 
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
@@ -350,6 +388,7 @@ async def on_online_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = q.from_user.id
     if uid in lobby.players:
         lobby.players.remove(uid)
+    lobby.names.pop(uid, None)
 
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
@@ -361,14 +400,18 @@ async def on_online_close(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not lobby:
         return
 
-    # закрыть может только создатель
     if q.from_user.id != lobby.owner_id:
         await q.answer("Закрыть лобби может только создатель.", show_alert=True)
         return
 
+    cancel_timer(context, lobby)
     ONLINE_LOBBY.pop(chat_id, None)
     await q.edit_message_text("Лобби закрыто. /game чтобы создать новое.")
 
+
+# =========================
+# ОНЛАЙН РЕЖИМ: старт, таймер, голосование
+# =========================
 async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -391,14 +434,15 @@ async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # выбрать слово и шпиона
     lobby.started = True
+    lobby.voting_active = False
+    lobby.votes.clear()
+    lobby.not_ready.clear()
     lobby.spy_id = random.choice(lobby.players)
 
     if lobby.theme == "BRAWL":
         lobby.word = random.choice(BRAWL)
     else:
         lobby.word = random.choice(THEMES[lobby.theme])
-
-    lobby.not_ready.clear()
 
     # раздать роли в личку
     for uid in lobby.players:
@@ -414,24 +458,145 @@ async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             lobby.not_ready.add(uid)
 
     if lobby.not_ready:
-        # показать, что кто-то не открыл личку
-        await q.edit_message_text(
-            "⚠️ Не всем удалось отправить роль в личку.\n"
-            "Эти игроки должны открыть бота в личке и нажать /start, потом создайте игру заново.\n\n"
-            "Подсказка: просто пусть каждый откроет бота, нажмёт Start — и всё.",
-            reply_markup=kb_lobby()
-        )
         lobby.started = False
         lobby.spy_id = None
         lobby.word = None
+        await q.edit_message_text(
+            "⚠️ Не всем удалось отправить роль в личку.\n"
+            "Эти игроки должны открыть бота в личке и нажать /start, потом создайте игру заново.\n\n"
+            "Подсказка: пусть каждый откроет бота в личке → Start.",
+            reply_markup=kb_lobby()
+        )
         return
 
-    # успех
+    # запускаем 5-мин таймер
+    start_timer(context, chat_id, lobby)
+
     await q.edit_message_text(
         "✅ Роли выданы в личные сообщения!\n"
-        "Начинайте обсуждение в группе 🙂",
-        reply_markup=None
+        "⏱ Обсуждение: 5 минут.\n"
+        "Можно начать голосование в любой момент кнопкой ниже.",
+        reply_markup=kb_timer_controls()
     )
+
+def kb_vote(lobby: OnlineLobby) -> InlineKeyboardMarkup:
+    # кнопки с игроками (2 в ряд)
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for uid in lobby.players:
+        name = lobby.names.get(uid, f"id:{uid}")
+        row.append(InlineKeyboardButton(name, callback_data=f"online_vote:{uid}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    return InlineKeyboardMarkup(buttons)
+
+async def on_online_vote_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    chat_id = q.message.chat_id
+    lobby = ONLINE_LOBBY.get(chat_id)
+    if not lobby or not lobby.started:
+        await q.answer("Игра не запущена.", show_alert=True)
+        return
+
+    if lobby.voting_active:
+        await q.answer("Голосование уже идёт.", show_alert=True)
+        return
+
+    # останавливаем таймер
+    cancel_timer(context, lobby)
+
+    lobby.voting_active = True
+    lobby.votes.clear()
+
+    await q.edit_message_text(
+        "🗳 Голосование началось!\n"
+        "Нажмите на игрока, которого вы подозреваете.\n"
+        "Каждый может проголосовать 1 раз.",
+        reply_markup=kb_vote(lobby)
+    )
+
+async def on_online_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    chat_id = q.message.chat_id
+    lobby = ONLINE_LOBBY.get(chat_id)
+    if not lobby or not lobby.voting_active:
+        await q.answer("Голосование не активно.", show_alert=True)
+        return
+
+    voter = q.from_user.id
+    if voter not in lobby.players:
+        await q.answer("Вы не в этой игре.", show_alert=True)
+        return
+
+    target = int(q.data.split(":", 1)[1])
+    if target not in lobby.players:
+        await q.answer("Неверная цель.", show_alert=True)
+        return
+
+    # один голос на игрока
+    lobby.votes[voter] = target
+
+    total = len(lobby.players)
+    done = len(lobby.votes)
+
+    # обновим текст
+    try:
+        await q.edit_message_text(
+            "🗳 Голосование идёт!\n"
+            f"Проголосовали: {done}/{total}\n"
+            "Каждый может проголосовать 1 раз.",
+            reply_markup=kb_vote(lobby)
+        )
+    except:
+        pass
+
+    if done >= total:
+        await finish_voting(chat_id, context)
+
+async def finish_voting(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    lobby = ONLINE_LOBBY.get(chat_id)
+    if not lobby:
+        return
+
+    lobby.voting_active = False
+
+    # подсчёт
+    counts: Dict[int, int] = {}
+    for target in lobby.votes.values():
+        counts[target] = counts.get(target, 0) + 1
+
+    if not counts:
+        await context.bot.send_message(chat_id, "Голосов нет. Шпион выигрывает 🕵️🎉")
+        ONLINE_LOBBY.pop(chat_id, None)
+        return
+
+    max_votes = max(counts.values())
+    top = [uid for uid, c in counts.items() if c == max_votes]
+    eliminated = random.choice(top)
+
+    eliminated_name = lobby.names.get(eliminated, str(eliminated))
+
+    if eliminated == lobby.spy_id:
+        await context.bot.send_message(
+            chat_id,
+            f"🗳 Итог: большинство выбрало {eliminated_name}.\n"
+            "✅ Это был ШПИОН! Мирные выигрывают 🎉"
+        )
+    else:
+        spy_name = lobby.names.get(lobby.spy_id, "шпион")
+        await context.bot.send_message(
+            chat_id,
+            f"🗳 Итог: большинство выбрало {eliminated_name}.\n"
+            f"❌ Это НЕ шпион.\n"
+            f"🕵️ Шпион выигрывает! (Шпион: {spy_name})"
+        )
+
+    ONLINE_LOBBY.pop(chat_id, None)
 
 
 # =========================
@@ -463,6 +628,10 @@ def main():
     app.add_handler(CallbackQueryHandler(on_online_leave, pattern=r"^online_leave$"))
     app.add_handler(CallbackQueryHandler(on_online_start, pattern=r"^online_start$"))
     app.add_handler(CallbackQueryHandler(on_online_close, pattern=r"^online_close$"))
+
+    # voting
+    app.add_handler(CallbackQueryHandler(on_online_vote_start, pattern=r"^online_vote_start$"))
+    app.add_handler(CallbackQueryHandler(on_online_vote, pattern=r"^online_vote:"))
 
     app.run_polling()
 
