@@ -1,7 +1,7 @@
 import os
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.error import Forbidden
@@ -9,16 +9,16 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 
 
 # =========================
-# ТЕМЫ + СЛОВА (можешь расширять)
+# ТЕМЫ + СЛОВА
 # =========================
 THEMES: Dict[str, List[str]] = {
     "Кафе": [
         "Кофе", "Чай", "Капучино", "Латте", "Американо", "Эспрессо", "Раф", "Мокка",
         "Какао", "Лимонад", "Смузи", "Милкшейк",
         "Круассан", "Маффин", "Чизкейк", "Тирамису", "Эклер", "Пончик", "Пирожное",
-        "Меню", "Счёт", "Чаевые", "Заказ", "Доставка", "Самовывоз",
+        "Меню", "Счёт", "Чаевые", "Заказ",
         "Официант", "Бариста", "Повар", "Кассир",
-        "Чашка", "Блюдце", "Ложка", "Вилка", "Нож", "Салфетка", "Поднос",
+        "Чашка", "Блюдце", "Ложка", "Салфетка", "Поднос",
         "Столик", "Стул", "Терраса", "Витрина", "Wi-Fi"
     ],
     "Школа": [
@@ -30,31 +30,33 @@ THEMES: Dict[str, List[str]] = {
     ],
     "Дом": [
         "Диван", "Кресло", "Стул", "Стол", "Шкаф", "Комод",
-        "Кровать", "Подушка", "Одеяло", "Плед", "Матрас",
-        "Телевизор", "Пульт", "Лампа", "Люстра", "Розетка",
-        "Ковёр", "Зеркало", "Окно", "Шторы", "Дверь",
+        "Кровать", "Подушка", "Одеяло", "Плед",
+        "Телевизор", "Пульт", "Лампа", "Люстра",
+        "Окно", "Шторы", "Дверь",
         "Холодильник", "Микроволновка", "Плита", "Чайник",
         "Сковородка", "Кастрюля",
-        "Ванная", "Душ", "Полотенце", "Мыло", "Шампунь", "Фен"
+        "Ванная", "Душ", "Полотенце", "Мыло", "Шампунь"
     ],
     "Улица": [
         "Дорога", "Тротуар", "Асфальт", "Лужа", "Пешеход",
-        "Машина", "Автобус", "Трамвай", "Метро", "Такси", "Велосипед", "Самокат",
+        "Машина", "Автобус", "Трамвай", "Метро", "Такси",
         "Светофор", "Переход", "Знак", "Перекрёсток",
         "Фонарь", "Лавочка", "Урна", "Остановка",
-        "Двор", "Подъезд", "Лестница", "Парк", "Аллея",
-        "Площадка", "Качели", "Горка"
+        "Двор", "Подъезд", "Парк", "Аллея", "Площадка"
     ],
     "Путешествия": [
-        "Самолёт", "Аэропорт", "Посадка", "Регистрация", "Багаж", "Ручная кладь",
-        "Билет", "Паспорт", "Виза", "Контроль", "Таможня",
-        "Чемодан", "Рюкзак", "Карта", "Навигатор", "Гид",
-        "Поезд", "Вагон", "Купе", "Плацкарт", "Перрон",
-        "Отель", "Ресепшен", "Номер", "Ключ-карта", "Бронь",
-        "Экскурсия", "Сувенир", "Пляж", "Море", "Песок"
+        "Самолёт", "Аэропорт", "Посадка", "Регистрация", "Багаж",
+        "Билет", "Паспорт", "Виза", "Контроль",
+        "Чемодан", "Рюкзак", "Карта", "Навигатор",
+        "Поезд", "Вагон", "Купе", "Перрон",
+        "Отель", "Ресепшен", "Номер", "Бронь",
+        "Экскурсия", "Сувенир", "Пляж", "Море"
     ],
 }
 
+# =========================
+# BRAWL STARS
+# =========================
 BRAWL = [
     "Шелли", "Кольт", "Спайк", "Ворон", "Леон", "Джесси", "Нита", "Бо", "Поко",
     "Эль примо", "Френк", "8-Бит", "Брок", "Эдгар", "Пайпер", "Мортис",
@@ -81,22 +83,18 @@ class OnlineLobby:
     owner_id: int
     theme: Optional[str] = None
     players_target: int = 4
-    players: List[int] = field(default_factory=list)         # user_id
-    names: Dict[int, str] = field(default_factory=dict)       # user_id -> display name
+    players: List[int] = field(default_factory=list)     # user_id
 
     started: bool = False
     spy_id: Optional[int] = None
     word: Optional[str] = None
 
-    timer_job_name: Optional[str] = None                      # имя job в job_queue
     voting_active: bool = False
-    votes: Dict[int, int] = field(default_factory=dict)       # voter_id -> target_id
-
-    not_ready: Set[int] = field(default_factory=set)          # кому бот не смог написать
+    votes: Dict[int, int] = field(default_factory=dict)  # voter_id -> target_id
 
 
-LOCAL_GAMES: Dict[int, LocalGame] = {}      # chat_id -> LocalGame
-ONLINE_LOBBY: Dict[int, OnlineLobby] = {}   # group_chat_id -> OnlineLobby
+LOCAL_GAMES: Dict[int, LocalGame] = {}
+ONLINE_LOBBY: Dict[int, OnlineLobby] = {}
 
 
 # =========================
@@ -133,62 +131,29 @@ def kb_lobby():
         [InlineKeyboardButton("🛑 Закрыть лобби", callback_data="online_close")],
     ])
 
-def kb_timer_controls():
+def kb_vote_start():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🗳 Начать голосование", callback_data="online_vote_start")],
     ])
 
 def display_name(u) -> str:
-    # красивое имя для списка игроков
     if u.username:
         return f"@{u.username}"
     return u.first_name or "Игрок"
 
-def format_players(lobby: OnlineLobby) -> str:
-    if not lobby.players:
-        return "—"
-    return ", ".join(lobby.names.get(uid, f"id:{uid}") for uid in lobby.players)
-
 
 # =========================
-# УТИЛИТЫ: таймер и завершение
+# ТЕКСТ ЛОББИ
 # =========================
-DISCUSSION_SECONDS = 5 * 60
-
-async def timer_expired(context: ContextTypes.DEFAULT_TYPE):
-    data = context.job.data or {}
-    chat_id = data.get("chat_id")
-    if not chat_id:
-        return
-
-    lobby = ONLINE_LOBBY.get(chat_id)
-    if not lobby:
-        return
-
-    # если голосование уже началось — не надо “шпион выигрывает”
-    if lobby.voting_active:
-        return
-
-    await context.bot.send_message(
-        chat_id=chat_id,
-        text="⏱ Время вышло (5 минут). Шпион выигрывает! 🕵️🎉"
-    )
-    ONLINE_LOBBY.pop(chat_id, None)
-
-def cancel_timer(context: ContextTypes.DEFAULT_TYPE, lobby: OnlineLobby):
-    if lobby.timer_job_name:
-        for job in context.job_queue.get_jobs_by_name(lobby.timer_job_name):
-            job.schedule_removal()
-        lobby.timer_job_name = None
-
-def start_timer(context: ContextTypes.DEFAULT_TYPE, chat_id: int, lobby: OnlineLobby):
-    cancel_timer(context, lobby)
-    lobby.timer_job_name = f"timer:{chat_id}"
-    context.job_queue.run_once(
-        timer_expired,
-        when=DISCUSSION_SECONDS,
-        name=lobby.timer_job_name,
-        data={"chat_id": chat_id}
+def lobby_text(chat_id: int) -> str:
+    lobby = ONLINE_LOBBY[chat_id]
+    theme_name = "Brawl Stars ⭐" if lobby.theme == "BRAWL" else (lobby.theme or "—")
+    return (
+        f"🌐 Онлайн-лобби\n"
+        f"Тема: {theme_name}\n"
+        f"Игроки: {len(lobby.players)}/{lobby.players_target}\n\n"
+        f"Нажмите «Присоединиться». Когда все собрались — «Начать».\n"
+        f"Важно: каждый игрок должен открыть бота в личке и нажать /start (один раз), иначе роль не придёт."
     )
 
 
@@ -201,8 +166,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Команды:\n"
         "/game — начать (выбор режима)\n"
         "/stop — остановить\n\n"
-        "Для онлайн-режима: каждый игрок должен открыть меня в личке и нажать /start (один раз), "
-        "иначе роль не придёт."
+        "Для онлайн-режима: каждый игрок должен открыть меня в личке и нажать /start один раз."
     )
 
 async def cmd_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -211,9 +175,7 @@ async def cmd_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     LOCAL_GAMES.pop(chat_id, None)
-    lobby = ONLINE_LOBBY.pop(chat_id, None)
-    if lobby:
-        cancel_timer(context, lobby)
+    ONLINE_LOBBY.pop(chat_id, None)
     await update.message.reply_text("Остановлено. Чтобы начать заново: /game")
 
 
@@ -318,18 +280,6 @@ async def on_local_ok(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 # ОНЛАЙН РЕЖИМ: лобби
 # =========================
-def lobby_text(chat_id: int) -> str:
-    lobby = ONLINE_LOBBY[chat_id]
-    theme_name = "Brawl Stars ⭐" if lobby.theme == "BRAWL" else (lobby.theme or "—")
-    return (
-        f"🌐 Онлайн-лобби\n"
-        f"Тема: {theme_name}\n"
-        f"Игроки: {len(lobby.players)}/{lobby.players_target}\n"
-        f"{format_players(lobby)}\n\n"
-        f"Нажмите «Присоединиться». Когда все собрались — «Начать».\n"
-        f"Важно: каждый игрок должен открыть бота в личке и нажать /start (один раз), иначе роль не придёт."
-    )
-
 async def on_online_theme(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -355,11 +305,10 @@ async def on_online_players(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     lobby.players_target = int(q.data.split(":", 1)[1])
 
-    # создатель автоматически в лобби
     if lobby.owner_id not in lobby.players:
         lobby.players.append(lobby.owner_id)
-    lobby.names[lobby.owner_id] = display_name(q.from_user)
 
+    # показываем лобби
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
 async def on_online_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -373,7 +322,6 @@ async def on_online_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = q.from_user.id
     if uid not in lobby.players:
         lobby.players.append(uid)
-    lobby.names[uid] = display_name(q.from_user)
 
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
@@ -388,7 +336,6 @@ async def on_online_leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = q.from_user.id
     if uid in lobby.players:
         lobby.players.remove(uid)
-    lobby.names.pop(uid, None)
 
     await q.edit_message_text(lobby_text(chat_id), reply_markup=kb_lobby())
 
@@ -404,14 +351,32 @@ async def on_online_close(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.answer("Закрыть лобби может только создатель.", show_alert=True)
         return
 
-    cancel_timer(context, lobby)
     ONLINE_LOBBY.pop(chat_id, None)
     await q.edit_message_text("Лобби закрыто. /game чтобы создать новое.")
 
 
 # =========================
-# ОНЛАЙН РЕЖИМ: старт, таймер, голосование
+# ОНЛАЙН РЕЖИМ: старт + голосование
 # =========================
+def kb_vote(lobby: OnlineLobby) -> InlineKeyboardMarkup:
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for uid in lobby.players:
+        # показываем имена в кнопках
+        name = lobby_display_name(uid, lobby)
+        row.append(InlineKeyboardButton(name, callback_data=f"online_vote:{uid}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    return InlineKeyboardMarkup(buttons)
+
+def lobby_display_name(uid: int, lobby: OnlineLobby) -> str:
+    # пытаемся красиво показать: @username или first_name
+    # если нет — часть id
+    return lobby._names.get(uid) if hasattr(lobby, "_names") and uid in lobby._names else f"id:{str(uid)[-4:]}"
+
 async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -432,19 +397,30 @@ async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.answer("Соберите всех игроков или уменьшите количество.", show_alert=True)
         return
 
+    # сохраняем имена игроков (чтобы в голосовании были не id)
+    if not hasattr(lobby, "_names"):
+        lobby._names = {}
+    for uid in lobby.players:
+        # имя берём хотя бы от того, кто нажимал — остальные могут быть неизвестны,
+        # но обычно Telegram отдаёт from_user при join, так что будет ок.
+        # Если нет — оставим короткий id.
+        pass
+    # Обновим имя текущего пользователя
+    lobby._names[q.from_user.id] = display_name(q.from_user)
+
     # выбрать слово и шпиона
     lobby.started = True
     lobby.voting_active = False
     lobby.votes.clear()
-    lobby.not_ready.clear()
-    lobby.spy_id = random.choice(lobby.players)
 
+    lobby.spy_id = random.choice(lobby.players)
     if lobby.theme == "BRAWL":
         lobby.word = random.choice(BRAWL)
     else:
         lobby.word = random.choice(THEMES[lobby.theme])
 
     # раздать роли в личку
+    not_ready = []
     for uid in lobby.players:
         try:
             if uid == lobby.spy_id:
@@ -453,45 +429,37 @@ async def on_online_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 label = "Персонаж" if lobby.theme == "BRAWL" else "Слово"
                 await context.bot.send_message(chat_id=uid, text=f"✅ {label}: {lobby.word}")
         except Forbidden:
-            lobby.not_ready.add(uid)
+            not_ready.append(uid)
         except:
-            lobby.not_ready.add(uid)
+            not_ready.append(uid)
 
-    if lobby.not_ready:
+    if not_ready:
+        # Надёжно сообщаем в группу (НОВЫМ сообщением), а не edit
         lobby.started = False
         lobby.spy_id = None
         lobby.word = None
-        await q.edit_message_text(
-            "⚠️ Не всем удалось отправить роль в личку.\n"
-            "Эти игроки должны открыть бота в личке и нажать /start, потом создайте игру заново.\n\n"
-            "Подсказка: пусть каждый откроет бота в личке → Start.",
-            reply_markup=kb_lobby()
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="⚠️ Не всем удалось отправить роль в личку.\n"
+                 "Эти игроки должны открыть бота в личке и нажать /start.\n"
+                 "Потом создайте игру заново.",
         )
         return
 
-    # запускаем 5-мин таймер
-    start_timer(context, chat_id, lobby)
-
-    await q.edit_message_text(
-        "✅ Роли выданы в личные сообщения!\n"
-        "⏱ Обсуждение: 5 минут.\n"
-        "Можно начать голосование в любой момент кнопкой ниже.",
-        reply_markup=kb_timer_controls()
+    # ВАЖНО: НЕ редактируем лобби, а шлём новое сообщение в группу
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text="✅ Роли выданы в личные сообщения!\nНачинайте обсуждение в группе 🙂\n\n"
+             "Когда будете готовы — нажмите «Начать голосование».",
+        reply_markup=kb_vote_start()
     )
 
-def kb_vote(lobby: OnlineLobby) -> InlineKeyboardMarkup:
-    # кнопки с игроками (2 в ряд)
-    buttons: List[List[InlineKeyboardButton]] = []
-    row: List[InlineKeyboardButton] = []
-    for uid in lobby.players:
-        name = lobby.names.get(uid, f"id:{uid}")
-        row.append(InlineKeyboardButton(name, callback_data=f"online_vote:{uid}"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-    return InlineKeyboardMarkup(buttons)
+    # Можно оставить лобби как есть, или попытаться отключить кнопки (не критично)
+    try:
+        await q.edit_message_reply_markup(reply_markup=None)
+    except:
+        pass
+
 
 async def on_online_vote_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -506,16 +474,14 @@ async def on_online_vote_start(update: Update, context: ContextTypes.DEFAULT_TYP
         await q.answer("Голосование уже идёт.", show_alert=True)
         return
 
-    # останавливаем таймер
-    cancel_timer(context, lobby)
-
     lobby.voting_active = True
     lobby.votes.clear()
 
     await q.edit_message_text(
         "🗳 Голосование началось!\n"
         "Нажмите на игрока, которого вы подозреваете.\n"
-        "Каждый может проголосовать 1 раз.",
+        "Каждый может проголосовать 1 раз.\n\n"
+        f"Проголосовали: 0/{len(lobby.players)}",
         reply_markup=kb_vote(lobby)
     )
 
@@ -535,21 +501,21 @@ async def on_online_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     target = int(q.data.split(":", 1)[1])
     if target not in lobby.players:
-        await q.answer("Неверная цель.", show_alert=True)
+        await q.answer("Неверный выбор.", show_alert=True)
         return
 
-    # один голос на игрока
     lobby.votes[voter] = target
 
     total = len(lobby.players)
     done = len(lobby.votes)
 
-    # обновим текст
+    # обновим сообщение голосования
     try:
         await q.edit_message_text(
             "🗳 Голосование идёт!\n"
-            f"Проголосовали: {done}/{total}\n"
-            "Каждый может проголосовать 1 раз.",
+            "Нажмите на игрока, которого вы подозреваете.\n"
+            "Каждый может проголосовать 1 раз.\n\n"
+            f"Проголосовали: {done}/{total}",
             reply_markup=kb_vote(lobby)
         )
     except:
@@ -565,35 +531,27 @@ async def finish_voting(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     lobby.voting_active = False
 
-    # подсчёт
+    # подсчёт голосов
     counts: Dict[int, int] = {}
     for target in lobby.votes.values():
         counts[target] = counts.get(target, 0) + 1
-
-    if not counts:
-        await context.bot.send_message(chat_id, "Голосов нет. Шпион выигрывает 🕵️🎉")
-        ONLINE_LOBBY.pop(chat_id, None)
-        return
 
     max_votes = max(counts.values())
     top = [uid for uid, c in counts.items() if c == max_votes]
     eliminated = random.choice(top)
 
-    eliminated_name = lobby.names.get(eliminated, str(eliminated))
+    eliminated_name = lobby_display_name(eliminated, lobby)
+    spy_name = lobby_display_name(lobby.spy_id, lobby) if lobby.spy_id else "шпион"
 
     if eliminated == lobby.spy_id:
         await context.bot.send_message(
-            chat_id,
-            f"🗳 Итог: большинство выбрало {eliminated_name}.\n"
-            "✅ Это был ШПИОН! Мирные выигрывают 🎉"
+            chat_id=chat_id,
+            text=f"✅ Большинство выбрало {eliminated_name}.\nЭто был ШПИОН! Мирные выигрывают 🎉"
         )
     else:
-        spy_name = lobby.names.get(lobby.spy_id, "шпион")
         await context.bot.send_message(
-            chat_id,
-            f"🗳 Итог: большинство выбрало {eliminated_name}.\n"
-            f"❌ Это НЕ шпион.\n"
-            f"🕵️ Шпион выигрывает! (Шпион: {spy_name})"
+            chat_id=chat_id,
+            text=f"❌ Большинство выбрало {eliminated_name}.\nЭто НЕ шпион.\nШпион выигрывает! 🕵️🎉 (Шпион: {spy_name})"
         )
 
     ONLINE_LOBBY.pop(chat_id, None)
